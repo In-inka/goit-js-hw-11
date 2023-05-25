@@ -26,7 +26,12 @@ async function getUser() {
         per_page: 40,
       },
     });
+
     const { data } = response;
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
 
     const image = await data.hits;
 
