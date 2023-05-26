@@ -1,6 +1,11 @@
 import Notiflix from 'notiflix';
 import axios from 'axios';
 
+// Описаний в документації
+import SimpleLightbox from 'simplelightbox';
+// Додатковий імпорт стилів
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
 const gallery = document.querySelector('.gallery');
 const searchForm = document.querySelector('#search-form');
 const buttonLoadMore = document.querySelector('.load-more');
