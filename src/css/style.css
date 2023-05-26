@@ -34,11 +34,16 @@ header {
   align-items: center;
 }
 
-.search-form input {
-  width: 300px;
+.search-form {
+  display: flex;
+  height: 30px;
 }
 
-.icons {
+.search-form input {
+  width: 300px;
+  border-radius: 5px;
+  outline: none;
+  border-color: #2654b6;
 }
 
 .gallery {

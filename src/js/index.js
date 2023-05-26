@@ -11,12 +11,14 @@ const searchForm = document.querySelector('#search-form');
 const buttonLoadMore = document.querySelector('.load-more');
 let imagesName = '';
 let currentPage = 1;
+let lightbox;
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '36759166-b262fab0d028493afdf08d48d';
 
 searchForm.addEventListener('submit', onInput);
 buttonLoadMore.addEventListener('click', onClickLoadMore);
+document.addEventListener('click', onclickImages);
 
 async function getUser() {
   try {
@@ -38,13 +40,14 @@ async function getUser() {
     const totalHits = data.totalHits;
 
     if (image.length === 0) {
+      buttonLoadMore.style.display = 'none';
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
       return;
     }
 
-    const postImg = image
+    const postImg = await image
       .map(
         ({
           webformatURL,
@@ -53,9 +56,10 @@ async function getUser() {
           views,
           comments,
           downloads,
+          largeImageURL,
         }) => `<div class="photo-card">
-  <img src=${webformatURL} alt=${tags} loading="lazy"  width="350px"
-  height="250px" />
+ <a   href=${largeImageURL}> <img src=${webformatURL} alt=${tags} loading="lazy"  width="350px"
+  height="250px" /></a>
   <div class="info">
     <p class="info-item">
       <b>Likes</b>
@@ -78,13 +82,17 @@ async function getUser() {
       )
       .join('');
     gallery.insertAdjacentHTML('beforeend', postImg);
+
     currentPage += 1;
+
+    lightbox.on('show.simplelightbox');
 
     if (imagesName) {
       Notiflix.Notify.success(`Hooray! We found ${totalHits} images`);
     }
     if (currentPage > 1) {
       buttonLoadMore.style.display = 'block';
+      lightbox.refresh();
     }
 
     if (currentPage * 40 >= totalHits) {
@@ -93,6 +101,15 @@ async function getUser() {
         "We're sorry, but you've reached the end of search results."
       );
     }
+    lightbox.refresh();
+
+    const { height: cardHeight } =
+      gallery.firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
   } catch (error) {
     console.log(error);
   }
@@ -112,6 +129,11 @@ function onInput(evt) {
   gallery.innerHTML = '';
 }
 function onClickLoadMore() {
-  buttonLoadMore.style.display = 'none';
   getUser();
+}
+
+function onclickImages() {
+  lightbox = new SimpleLightbox('.gallery a', {
+    captionDelay: '250',
+  });
 }
