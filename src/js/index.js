@@ -29,20 +29,17 @@ async function getUser() {
 
     const { data } = response;
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-
-    const image = await data.hits;
+    const image = data.hits;
+    const totalHits = data.totalHits;
 
     if (image.length === 0) {
-      Notiflix.Notify.info(
+      Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
       return;
     }
 
-    const postImg = await image
+    const postImg = image
       .map(
         ({
           webformatURL,
@@ -52,25 +49,45 @@ async function getUser() {
           comments,
           downloads,
         }) => `<div class="photo-card">
-  <img src=${webformatURL} alt=${tags} loading="lazy" />
+  <img src=${webformatURL} alt=${tags} loading="lazy"  width="350px"
+  height="250px" />
   <div class="info">
     <p class="info-item">
-      <b>Likes ${likes}</b>
+      <b>Likes</b>
+      ${likes}
     </p>
     <p class="info-item">
-      <b>Views ${views}</b>
+      <b>Views</b>
+      ${views}
     </p>
     <p class="info-item">
-      <b>Comments ${comments}</b>
+      <b>Comments</b>
+      ${comments}
     </p>
     <p class="info-item">
-      <b>Downloads ${downloads}</b>
+      <b>Downloads</b>
+      ${downloads}
     </p>
   </div>
 </div>`
       )
       .join('');
     gallery.insertAdjacentHTML('beforeend', postImg);
+    currentPage += 1;
+
+    if (imagesName) {
+      Notiflix.Notify.success(`Hooray! We found ${totalHits} images`);
+    }
+    if (currentPage > 1) {
+      buttonLoadMore.style.display = 'block';
+    }
+
+    if (currentPage * 40 >= totalHits) {
+      loadMoreBtn.style.display = 'none';
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      );
+    }
   } catch (error) {
     console.log(error);
   }
@@ -80,15 +97,16 @@ function onInput(evt) {
   evt.preventDefault();
   imagesName = evt.target.elements.searchQuery.value.trim();
 
-  searchForm.reset();
-  getUser();
-}
-function onClickLoadMore() {
-  currentPage += 1;
-  getUser();
+  currentPage = 1;
 
   if (imagesName === '') {
-    currentPage === 1;
+    return;
   }
+  getUser();
+
+  gallery.innerHTML = '';
 }
-///
+function onClickLoadMore() {
+  buttonLoadMore.style.display = 'none';
+  getUser();
+}
