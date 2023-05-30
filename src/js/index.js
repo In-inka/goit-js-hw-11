@@ -64,16 +64,16 @@ async function apiServiseImages() {
       per_page: 40,
     },
   });
-  return responses;
+  const { data } = responses;
+
+  return data;
 }
 
 //перебипаємо повернений масив та мапимо розмітку
 
 async function requestImages() {
   try {
-    const response = await apiServiseImages(nameImages);
-
-    const { data } = response;
+    const data = await apiServiseImages();
 
     const images = data.hits;
     const totalHits = data.totalHits;
@@ -101,8 +101,9 @@ async function requestImages() {
     }
 
     lightbox.refresh();
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    Notify.failure(error.message, 'Something went wrong!');
+    clearMarkup();
   }
 }
 
