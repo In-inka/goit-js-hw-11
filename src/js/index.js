@@ -95,6 +95,8 @@ async function requestImages() {
       scrollPage();
     }
 
+    currentPage++;
+
     if (currentPage * 40 >= totalHits) {
       endOfCollection();
       return;
@@ -127,7 +129,6 @@ function clearMarkup() {
 function onLoadMore() {
   ref.loadMore.style.display = 'none';
   requestImages();
-  currentPage++;
 }
 
 function emptyForm() {
