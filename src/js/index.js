@@ -95,12 +95,13 @@ async function requestImages() {
       scrollPage();
     }
 
-    currentPage++;
-
-    if (currentPage * 40 >= totalHits) {
+    const totalPages = Math.ceil(totalHits / 40);
+    if (currentPage >= totalPages) {
       endOfCollection();
       return;
     }
+
+    currentPage++;
 
     lightbox.refresh();
   } catch (error) {
