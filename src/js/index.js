@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Notiflix from 'notiflix';
 // Описаний в документації
 import SimpleLightbox from 'simplelightbox';
@@ -6,6 +5,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { galleryMarkup } from '../partias/markup';
+import { apiServiseImages } from '../partias/api';
+
 //змінні з селекторами
 
 const ref = {
@@ -27,8 +28,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
 ref.loadMore.style.display = 'none';
 
 //базове url
-const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '36759166-b262fab0d028493afdf08d48d';
+
 //слухач на кнопку пошуку та на кнопку додавання
 ref.searchForm.addEventListener('submit', onSearchImages);
 ref.loadMore.addEventListener('click', onLoadMore);
@@ -52,28 +52,11 @@ function onSearchImages(e) {
 //створюємо асин.функцію запиту на сервер
 //в параметрах вказуємо per_page 40 та page = змінна поточне значення 1
 
-async function apiServiseImages() {
-  const responses = await axios.get(`${BASE_URL}`, {
-    params: {
-      key: API_KEY,
-      q: nameImages,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: 'true',
-      page: currentPage,
-      per_page: 40,
-    },
-  });
-  const { data } = responses;
-
-  return data;
-}
-
 //перебипаємо повернений масив та мапимо розмітку
 
 async function requestImages() {
   try {
-    const data = await apiServiseImages();
+    const data = await apiServiseImages(nameImages, currentPage);
 
     const images = data.hits;
     const totalHits = data.totalHits;
@@ -91,6 +74,8 @@ async function requestImages() {
     ref.gallery.insertAdjacentHTML('beforeend', imagesMurkup);
     ref.loadMore.style.display = 'block';
 
+    lightbox.refresh();
+
     if (currentPage >= 2) {
       scrollPage();
     }
@@ -100,10 +85,7 @@ async function requestImages() {
       endOfCollection();
       return;
     }
-
     currentPage++;
-
-    lightbox.refresh();
   } catch (error) {
     Notify.failure(error.message, 'Something went wrong!');
     clearMarkup();
